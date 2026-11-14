@@ -2,7 +2,7 @@
 
 Notable changes to this project are recorded here.
 
-## [Unreleased]
+## [v0.1.0]
 
 ### Added
 
