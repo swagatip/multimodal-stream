@@ -2,8 +2,14 @@
 
 Notable changes to this project are recorded here.
 
-## [v0.1.0]
+## [Unreleased]
 
+### Added
+
+- Video file chunking with configurable chunk sizes, byte offsets, and per-chunk SHA-256 checksums.
+- Typed message contracts for video chunk metadata and video completion manifests.
+
+## [v0.1.0] - 2026-11-13
 ### Added
 
 - Local single-node Kafka broker configuration using Docker Compose and KRaft.

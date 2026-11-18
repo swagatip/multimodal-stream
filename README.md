@@ -63,6 +63,16 @@ python -m unittest discover -s tests\unit -v
 python -m unittest discover -s tests\integration -v
 ```
 
+Unit testing individual files and test cases:
+
+```powershell
+$env:PYTHONPATH = ".\src"
+python -m unittest discover -s tests\unit -p test_file.py -v
+python -m unittest discover -s tests\unit -p test_file.py -k test_case_name -v
+```
+
+The video processor unit tests load the test-only logging configuration from `tests\unit\logging.ini`. It displays chunk creation `INFO` messages in the console. This configuration is for tests only; applications using any class should configure logging in their own entry point.
+
 ### Optional Kafka CLI smoke test
 
 These commands run Kafka's bundled command-line tools inside the `kafka` container. Run them from the repository root while the broker is running.
