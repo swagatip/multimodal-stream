@@ -5,7 +5,7 @@ import unittest
 from logging.config import fileConfig
 from pathlib import Path
 
-from multimodal_stream.video_processor import VideoProcessor
+from multimodal_stream.video_chunker import VideoChunker
 
 fileConfig(
     Path(__file__).with_name("logging.ini"),
@@ -13,9 +13,9 @@ fileConfig(
 )
 
 
-class VideoProcessorTests(unittest.TestCase):
+class VideoChunkerTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.processor = VideoProcessor()
+        self.chunker = VideoChunker()
 
     def test_create_chunks_splits_data_and_preserves_offsets(self) -> None:
         data = bytes(range(130))
@@ -23,7 +23,7 @@ class VideoProcessorTests(unittest.TestCase):
             video_path = Path(temp_dir) / "video.mp4"
             video_path.write_bytes(data)
 
-            chunks = list(self.processor.create_chunks(video_path, chunk_size=64))
+            chunks = list(self.chunker.create_chunks(video_path, chunk_size=64))
 
         self.assertEqual(len(chunks), 3)
         self.assertEqual([chunk.chunk_index for chunk in chunks], [0, 1, 2])
@@ -41,16 +41,16 @@ class VideoProcessorTests(unittest.TestCase):
         self.assertEqual(b"".join(chunk.data for chunk in chunks), data)
 
     def test_create_chunks_uses_default_chunk_size(self) -> None:
-        data = bytes(VideoProcessor.DEFAULT_CHUNK_SIZE_BYTES + 1)
+        data = bytes(VideoChunker.DEFAULT_CHUNK_SIZE_BYTES + 1)
         with tempfile.TemporaryDirectory() as temp_dir:
             video_path = Path(temp_dir) / "video.mp4"
             video_path.write_bytes(data)
 
-            chunks = list(self.processor.create_chunks(video_path))
+            chunks = list(self.chunker.create_chunks(video_path))
 
         self.assertEqual(
             [len(chunk.data) for chunk in chunks],
-            [VideoProcessor.DEFAULT_CHUNK_SIZE_BYTES, 1],
+            [VideoChunker.DEFAULT_CHUNK_SIZE_BYTES, 1],
         )
 
     def test_create_chunks_does_not_add_empty_chunk_for_exact_multiple(self) -> None:
@@ -59,7 +59,7 @@ class VideoProcessorTests(unittest.TestCase):
             video_path = Path(temp_dir) / "video.mp4"
             video_path.write_bytes(data)
 
-            chunks = list(self.processor.create_chunks(video_path, chunk_size=64))
+            chunks = list(self.chunker.create_chunks(video_path, chunk_size=64))
 
         self.assertEqual(len(chunks), 2)
         self.assertEqual([chunk.offset_bytes for chunk in chunks], [0, 64])
@@ -70,7 +70,7 @@ class VideoProcessorTests(unittest.TestCase):
             video_path = Path(temp_dir) / "missing.mp4"
 
             with self.assertRaises(FileNotFoundError):
-                list(self.processor.create_chunks(video_path, chunk_size=64))
+                list(self.chunker.create_chunks(video_path, chunk_size=64))
 
     def test_create_chunks_warns_and_yields_no_chunks_for_empty_file(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -78,9 +78,9 @@ class VideoProcessorTests(unittest.TestCase):
             video_path.touch()
 
             with self.assertLogs(
-                "multimodal_stream.video_processor", level=logging.WARNING
+                "multimodal_stream.video_chunker", level=logging.WARNING
             ):
-                chunks = list(self.processor.create_chunks(video_path, chunk_size=64))
+                chunks = list(self.chunker.create_chunks(video_path, chunk_size=64))
 
         self.assertEqual(chunks, [])
 
@@ -93,7 +93,7 @@ class VideoProcessorTests(unittest.TestCase):
                 with self.subTest(chunk_size=chunk_size):
                     with self.assertRaises(ValueError):
                         list(
-                            self.processor.create_chunks(
+                            self.chunker.create_chunks(
                                 video_path, chunk_size=chunk_size
                             )
                         )

@@ -9,7 +9,7 @@ from multimodal_stream.video_data_types import VideoChunk
 logger = logging.getLogger(__name__)
 
 
-class VideoProcessor:
+class VideoChunker:
     DEFAULT_CHUNK_SIZE_BYTES = 64 * 1024
 
     def create_chunks(
