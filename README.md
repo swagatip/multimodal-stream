@@ -71,7 +71,7 @@ python -m unittest discover -s tests\unit -p test_file.py -v
 python -m unittest discover -s tests\unit -p test_file.py -k test_case_name -v
 ```
 
-The video processor unit tests load the test-only logging configuration from `tests\unit\logging.ini`. It displays chunk creation `INFO` messages in the console. This configuration is for tests only; applications using any class should configure logging in their own entry point.
+Unit tests that load the test-only logging configuration from `tests\unit\logging.ini` display `INFO` messages from the `multimodal_stream` package in the console. This configuration is for tests only; applications using any part of the project should configure logging in their own entry point.
 
 ### Optional Kafka CLI smoke test
 

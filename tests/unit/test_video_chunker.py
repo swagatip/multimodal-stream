@@ -12,7 +12,6 @@ fileConfig(
     disable_existing_loggers=False,
 )
 
-
 class VideoChunkerTests(unittest.TestCase):
     def setUp(self) -> None:
         self.chunker = VideoChunker()
