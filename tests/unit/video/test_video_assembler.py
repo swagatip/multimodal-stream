@@ -5,12 +5,12 @@ from dataclasses import replace
 from logging.config import fileConfig
 from pathlib import Path
 
-from multimodal_stream.video_assembler import VideoAssembler
-from multimodal_stream.video_data_types import VideoChunk
-from multimodal_stream.video_chunker import VideoChunker
+from multimodal_stream.video.video_assembler import VideoAssembler
+from multimodal_stream.video.video_data_types import VideoChunk
+from multimodal_stream.video.video_chunker import VideoChunker
 
 fileConfig(
-    Path(__file__).with_name("logging.ini"),
+    Path(__file__).parent.parent / "logging.ini",
     disable_existing_loggers=False,
 )
 

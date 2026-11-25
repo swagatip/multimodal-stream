@@ -5,10 +5,10 @@ import unittest
 from logging.config import fileConfig
 from pathlib import Path
 
-from multimodal_stream.video_chunker import VideoChunker
+from multimodal_stream.video.video_chunker import VideoChunker
 
 fileConfig(
-    Path(__file__).with_name("logging.ini"),
+    Path(__file__).parent.parent / "logging.ini",
     disable_existing_loggers=False,
 )
 
@@ -77,7 +77,7 @@ class VideoChunkerTests(unittest.TestCase):
             video_path.touch()
 
             with self.assertLogs(
-                "multimodal_stream.video_chunker", level=logging.WARNING
+                "multimodal_stream.video.video_chunker", level=logging.WARNING
             ):
                 chunks = list(self.chunker.create_chunks(video_path, chunk_size=64))
 

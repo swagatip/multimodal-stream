@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import BinaryIO, Iterator
 
-from multimodal_stream.video_data_types import VideoChunk
+from multimodal_stream.video.video_data_types import VideoChunk
 
 logger = logging.getLogger(__name__)
 
