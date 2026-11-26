@@ -16,3 +16,21 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: "0"
       KAFKA_NUM_PARTITIONS: "1"
+
+  seaweedfs:
+    image: chrislusf/seaweedfs:latest
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        printf '{"identities":[{"name":"local-dev","credentials":[{"accessKey":"%s","secretKey":"%s"}],"actions":["Admin","Read","List","Tagging","Write"]}]}' "$$S3_ACCESS_KEY" "$$S3_SECRET_KEY" > /tmp/seaweedfs-s3.json
+        exec weed server -dir=/data -filer -s3 -s3.config=/tmp/seaweedfs-s3.json
+    environment:
+      S3_ACCESS_KEY: ${AWS_ACCESS_KEY_ID:?Set AWS_ACCESS_KEY_ID before starting Docker Compose}
+      S3_SECRET_KEY: ${AWS_SECRET_ACCESS_KEY:?Set AWS_SECRET_ACCESS_KEY before starting Docker Compose}
+    ports:
+      - "8333:8333"
+    volumes:
+      - seaweedfs_data:/data
+
+volumes:
+  seaweedfs_data:

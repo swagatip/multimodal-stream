@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class VideoChunker:
+    # TODO Use different chunk size when deploying in production
     DEFAULT_CHUNK_SIZE_BYTES = 64 * 1024
 
     def create_chunks(

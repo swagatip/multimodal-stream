@@ -6,9 +6,13 @@ This project explores streaming multimodal data and various concepts around it.
 
 Prerequisites: Docker Desktop and Python 3.10 or later.
 
-1. Start the local Kafka broker from the repository root:
+1. Configure local SeaweedFS S3 credentials and start Kafka and SeaweedFS from the repository root. Use local-only credentials, and keep these environment variables set in the PowerShell session where you run the application:
 
 ```powershell
+$env:AWS_ACCESS_KEY_ID = "local-video-access-key"
+$env:AWS_SECRET_ACCESS_KEY = "local-video-secret-key-change-me"
+$env:AWS_DEFAULT_REGION = "us-east-1"
+$env:OBJECT_STORAGE_ENDPOINT_URL = "http://localhost:8333"
 docker compose up -d
 ```
 Tip: Run the following to see if docker is running:
@@ -53,15 +57,55 @@ python .\src\multimodal_stream\producer.py
 docker compose down
 ```
 
+### Local video object storage with SeaweedFS
+
+SeaweedFS exposes an S3-compatible API for local development. The Compose service stores data in a named volume, so uploaded objects remain after `docker compose down`.
+
+1. Start the SeaweedFS service using the Compose command above. Its S3 API endpoint is `http://localhost:8333`
+Note: the link is not a browser console. Use an S3 client configured with the credentials above to access it. Opening the endpoint in a browser sends an unauthenticated request and may return `AccessDenied`.
+2. Install project dependencies and set the source path if not already done:
+
+   ```powershell
+   python -m pip install -r requirements.txt
+   $env:PYTHONPATH = ".\src"
+   ```
+
+3. Run the integration test. It creates the `video-chunks` bucket if needed, chunks a sample file, uploads and downloads each chunk, verifies the reconstructed bytes, and removes the test objects:
+
+   ```powershell
+   python -m unittest discover -s tests\integration -p test_video_object_storage.py -v
+   ```
+
+   To list buckets and confirm `video-chunks` exists:
+
+   ```powershell
+   python -c "import boto3, os; s3=boto3.client('s3', endpoint_url=os.environ['OBJECT_STORAGE_ENDPOINT_URL'], region_name='us-east-1'); print([bucket['Name'] for bucket in s3.list_buckets()['Buckets']])"
+   ```
+
+`S3ObjectStorage` uses `OBJECT_STORAGE_ENDPOINT_URL` for SeaweedFS and the standard AWS credential/region environment variables. For AWS S3, leave the endpoint unset and use an IAM role or appropriately scoped credentials. The Compose credentials are for local development only. This storage adapter does not yet publish Kafka video events.
+
 ### Tests
 
-Unit tests use mocks and do not require Kafka. Integration tests require the local broker and create/use a separate `messages.integration` topic. Run them separately:
+- Unit tests use mocks and do not require external services.
+- Kafka integration tests require the local broker and create/use a separate `messages.integration` topic.
+- The video object-storage integration test requires SeaweedFS and its S3 credentials. It creates the `video-chunks` bucket if needed, so the credentials must be allowed to create or access that bucket.
+
+Run the unit and integration test suites separately:
 
 ```powershell
 $env:PYTHONPATH = ".\src"
 python -m unittest discover -s tests\unit -v
 python -m unittest discover -s tests\integration -v
 ```
+
+Integration testing individual files and test cases:
+
+```powershell
+$env:PYTHONPATH = ".\src"
+python -m unittest discover -s tests\integration -p test_file.py -v
+python -m unittest discover -s tests\integration -p test_file.py -k test_case_name -v
+```
+
 
 Unit testing individual files and test cases:
 
