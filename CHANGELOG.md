@@ -9,6 +9,7 @@ Notable changes to this project are recorded here.
 - Video file chunking with configurable chunk sizes, byte offsets, and per-chunk SHA-256 checksums.
 - Local video chunk assembly with manifest validation and per-chunk and whole-file SHA-256 checksums.
 - Typed message contracts for video chunk metadata and video completion manifests.
+- S3-compatible object storage adapter with a local SeaweedFS setup and chunk upload/download integration test.
 
 ## [v0.1.0] - 2026-11-13
 ### Added
